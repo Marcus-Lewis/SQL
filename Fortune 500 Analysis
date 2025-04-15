@@ -65,3 +65,33 @@ SELECT industry, ROUND(AVG(revenue), 1) AS avg_revenue
 FROM fortune_companies 
 GROUP BY industry 
 ORDER BY avg_revenue DESC;
+
+# Which industries have an average paid time off (PTO) greater than 18 days?
+SELECT industry, ROUND(AVG(paid_time_off_days), 1) AS avg_pto_days
+FROM fortune_companies
+GROUP BY industry
+HAVING AVG(paid_time_off_days) > 18
+ORDER BY avg_pto_days asc;
+
+#Classify companies based on revenue tiers (High: > 300 billion, Medium: 200 billion to 299.99 billion, Low: < 200 billion)
+SELECT company_name, revenue,
+    CASE 
+        WHEN revenue >= 300 THEN 'High'
+        WHEN revenue >= 200 AND revenue < 300 THEN 'Medium'
+        ELSE 'Low'
+    END AS revenue_tier
+FROM fortune_companies
+ORDER BY revenue DESC;
+
+#Which 5 companies have the highest average employee tenure?
+SELECT company_name, avg_employee_tenure 
+FROM fortune_companies 
+ORDER BY avg_employee_tenure DESC 
+LIMIT 5;
+
+#What is the maximum and minimum maternity leave (in weeks) offered per industry?
+SELECT industry, 
+       MAX(maternity_leave_weeks) AS max_leave, 
+       MIN(maternity_leave_weeks) AS min_leave 
+FROM fortune_companies 
+GROUP BY industry;
