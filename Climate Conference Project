@@ -1,0 +1,51 @@
+For this project, you are helping to organize a conference for climate research, which will have hundreds of attendees.
+Your job has been to manage the 30 conference VIPs, who are all members of this organization. 
+Database: https://www.db-fiddle.com/f/pxMci1sLL945KHKYvpe9W6/1
+
+1. List all VIP members along with their event information (Left Join)
+SELECT v.member_id, v.first_name, v.last_name, e.event_name, e.event_type
+FROM vips v
+LEFT JOIN events e ON v.event = e.event_id;
+*This query uses a LEFT JOIN to show all VIP members, including those who aren't attending any event (where event is NULL).
+
+2. Show members attending panel events and their hotel reservations (Inner Join)
+SELECT v.member_id, v.first_name, v.last_name, e.event_name, h.hotel_name, r.welcome_rsvp, r.dinner_rsvp
+FROM vips v
+INNER JOIN events e ON v.event = e.event_id
+INNER JOIN reservations r ON v.member_id = r.member_id
+INNER JOIN hotels h ON r.hotel = h.hotel_id
+WHERE e.event_type = 'Panel';
+*This INNER JOIN query only returns members who are attending panel events and have made hotel reservations.
+
+3. Find all feedback relationships between members (Self Join)
+SELECT v1.member_id AS provider_id, 
+       v1.first_name || ' ' || v1.last_name AS provider_name,
+       v2.member_id AS receiver_id,
+       v2.first_name || ' ' || v2.last_name AS receiver_name
+FROM vips v1
+JOIN vips v2 ON v1.member_id = v2.provides_feedback_to;
+*This SELF JOIN query shows who provides feedback to whom in the organization.
+
+4. Count reservations by hotel with subquery (Subquery)
+SELECT h.hotel_name, 
+       (SELECT COUNT(*) FROM reservations r WHERE r.hotel = h.hotel_id) AS total_reservations,
+       (SELECT COUNT(*) FROM reservations r WHERE r.hotel = h.hotel_id AND r.welcome_rsvp = 1) AS welcome_attendees,
+       (SELECT COUNT(*) FROM reservations r WHERE r.hotel = h.hotel_id AND r.dinner_rsvp = 1) AS dinner_attendees
+FROM hotels h;
+*This query uses subqueries to count total reservations and attendance for each hotel.
+
+5. Find members from educational institutions attending workshops (Multiple Joins)
+SELECT v.member_id, v.first_name, v.last_name, v.association, e.event_name
+FROM vips v
+JOIN events e ON v.event = e.event_id
+JOIN reservations r ON v.member_id = r.member_id
+WHERE v.assoc_type = 'education' AND e.event_type = 'Workshop';
+*This query uses multiple joins to find educational institution members attending workshop events
+
+6. List members who haven't RSVP'd for dinner but are staying at the Hyatt Downtown
+SELECT v.member_id, v.first_name, v.last_name, h.hotel_name
+FROM vips v
+JOIN reservations r ON v.member_id = r.member_id
+JOIN hotels h ON r.hotel = h.hotel_id
+WHERE r.dinner_rsvp = 0 AND h.hotel_name = 'Hyatt Downtown';
+*This query identifies members who haven't signed up for dinner but are staying at a specific hotel.
